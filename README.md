@@ -27,7 +27,7 @@
 
 | Main UI | Building |
 |--------|---------|
-| ![Main UI](https://via.placeholder.com/300x200?text=Main+UI) | ![Build Progress](https://via.placeholder.com/300x200?text=Build+Progress) |
+| ![Main UI](https://via.placeholder.com/450x300?text=PyForge+Main+Interface+(Example)) | ![Build Progress](https://via.placeholder.com/450x300?text=PyForge+Build+In+Progress+(Example)) |
 
 ---
 
@@ -38,6 +38,10 @@ Install required packages using pip:
 ```bash
 pip install pyqt5 pyinstaller pipreqs qdarktheme
 ```
+*   `PyQt5`: For the graphical user interface.
+*   `PyInstaller`: To package your Python script into an executable.
+*   `pipreqs`: To automatically generate the `requirements.txt` file.
+*   `qdarktheme`: For the dark/light theme styling of the UI.
 
 Ensure `Python 3.6+` is installed and added to `PATH`.
 
@@ -46,7 +50,7 @@ Ensure `Python 3.6+` is installed and added to `PATH`.
 ## 🧪 How to Run
 
 ```bash
-python p12.py
+python pyforge.py
 ```
 
 ---
@@ -67,11 +71,11 @@ python p12.py
 
 ```
 /your_script_directory
-├── dist/
+├── dist/  # Contains the final packaged application (.exe or .app)
 │   └── YourAppName.exe/.app
-├── requirements.txt
-├── build_pyinstaller/
-└── YourAppName.spec
+├── requirements.txt  # Auto-generated list of project dependencies
+├── build_pyinstaller/  # Temporary PyInstaller working directory
+└── YourAppName.spec  # PyInstaller spec file, used for configuring the build
 ```
 
 ---
@@ -87,6 +91,10 @@ python p12.py
   pip install pipreqs
   ```
 - **Wrong icon format?** Use `.ico` for Windows, `.icns` for macOS
+- **Issue:** "My app closes immediately after opening!"
+  **Solution:** "This often happens with console applications packaged without the `--console` flag (or with `--windowed` inappropriately). If your script is a command-line tool, try rebuilding with PyInstaller using the `--console` option. For GUI apps, ensure errors during startup are logged or displayed instead of crashing."
+- **Issue:** "Antivirus flags my app as malware!"
+  **Solution:** "This is a common issue with PyInstaller executables. You can try: 1) Submitting your app to the antivirus vendor as a false positive. 2) Using a code signing certificate if you have one. 3) Modifying your script or PyInstaller build options, as sometimes specific libraries or settings trigger flags."
 
 ---
 
