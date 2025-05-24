@@ -133,6 +133,7 @@ class PyForge(QWidget):
 
     def setup_ui(self):
         main_layout = QVBoxLayout()
+        main_layout.setSpacing(18) # Adjusted main layout spacing
 
         # Header
         header = QLabel("PyForge")
@@ -144,10 +145,13 @@ class PyForge(QWidget):
         tagline.setFont(QFont("SF Pro Display", 13, QFont.StyleItalic)) # Or any available good font
         tagline.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(tagline)
+        main_layout.addSpacing(10) # Added spacing after tagline
 
         # File Selection
         file_group = QGroupBox("Input Files")
         file_layout = QVBoxLayout()
+        file_layout.setContentsMargins(10, 10, 10, 10) # Added margins
+        file_layout.setSpacing(10) # Added spacing within group
 
         # Python File
         py_layout = QHBoxLayout()
@@ -175,6 +179,8 @@ class PyForge(QWidget):
         # App Details
         details_group = QGroupBox("Application Details")
         details_layout = QVBoxLayout()
+        details_layout.setContentsMargins(10, 10, 10, 10) # Added margins
+        details_layout.setSpacing(10) # Added spacing within group
 
         self.name_input = QLineEdit()
         self.name_input.setPlaceholderText("Application Name (e.g., MyApp)")
@@ -194,7 +200,7 @@ class PyForge(QWidget):
 
         # Build Button
         build_btn = QPushButton(f"Build for {self.get_os_name()}")
-        build_btn.setStyleSheet("font-size: 17px; padding: 12px;")
+        build_btn.setStyleSheet("font-size: 17px; padding: 12px; margin-top: 5px; margin-bottom: 5px;") # Added top/bottom margin
         build_btn.clicked.connect(self.build_app)
 
         # Footer/Branding
@@ -203,10 +209,12 @@ class PyForge(QWidget):
         )
         footer.setOpenExternalLinks(True)
         footer.setAlignment(Qt.AlignCenter)
-        footer.setStyleSheet("color: #888; font-size: 13px; margin-top: 18px;")
+        # Increased margin-top for footer for better separation, especially from the stretch
+        footer.setStyleSheet("color: #888; font-size: 13px; margin-top: 25px;") 
 
         # Assemble UI
         main_layout.addWidget(file_group)
+        # main_layout.addSpacing(5) # Optional: space between group boxes if needed
         main_layout.addWidget(details_group)
         main_layout.addWidget(build_btn)
         main_layout.addStretch(1) # Add stretch to push footer down
@@ -302,13 +310,71 @@ class PyForge(QWidget):
         self.worker.finished.connect(self.on_build_finished)
         self.worker.start()
 
+    def open_output_directory(self, output_path):
+        """Opens the specified directory in the system's file explorer."""
+        if not os.path.isdir(output_path): # Check if it's a directory specifically
+            QMessageBox.warning(self, "Directory Not Found", f"The directory {output_path} does not exist or is not a directory.")
+            return
+
+        try:
+            if platform.system() == "Windows":
+                os.startfile(output_path)
+            elif platform.system() == "Darwin": # macOS
+                subprocess.call(["open", output_path])
+            else: # Linux and other Unix-like OS
+                subprocess.call(["xdg-open", output_path])
+        except Exception as e:
+            QMessageBox.critical(self, "Error Opening Directory", f"Failed to open directory '{output_path}':\n{str(e)}")
+
+
     def on_build_finished(self, msg, success):
         if self.progress: # Check if progress dialog still exists
             self.progress.close()
             self.progress = None # Clear reference
 
         if success:
-            QMessageBox.information(self, "Build Successful", msg)
+            output_dir = os.path.join(self.worker.script_dir, "dist") # Used for "Find app" and "Open folder"
+
+            app_name = self.worker.app_name # From worker
+            version = self.version_input.text().strip()
+            description = self.desc_input.toPlainText().strip()
+
+            details_parts = [f"App Name: {app_name}"]
+            if version:
+                details_parts.append(f"Version: {version}")
+            if description:
+                details_parts.append(f"Description: {description}")
+            
+            details_string = "\n".join(details_parts)
+            
+            # The 'msg' from worker.finished is like: 
+            # f"{self.worker.os_name} app build complete!\nFind your app in: {output_dir}"
+            # We need to insert details_string into this.
+            # Let's split the incoming 'msg' to insert the details.
+            
+            # msg from worker is: f"{self.os_name} app build complete!\nFind your app in: {output_dir}"
+            # We want: f"{self.os_name} app build complete!\n\n{details_string}\n\nFind your app in: {output_dir}"
+
+            # The 'msg' variable contains the original full message from the worker.
+            # Let's reconstruct it as per the new requirement.
+            original_status_part = f"{self.worker.os_name} app build complete!"
+            find_app_part = f"Find your app in: {output_dir}" # This part is in msg, but let's be explicit
+
+            final_message_text = f"{original_status_part}\n\n{details_string}\n\n{find_app_part}"
+
+            msg_box = QMessageBox(self)
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setWindowTitle("Build Successful")
+            msg_box.setText(final_message_text) # Use the new augmented message
+            
+            open_button = msg_box.addButton("Open Output Folder", QMessageBox.ActionRole)
+            msg_box.addButton(QMessageBox.Ok) # Standard OK button
+            
+            msg_box.exec_()
+            
+            if msg_box.clickedButton() == open_button:
+                # output_dir is already defined above
+                self.open_output_directory(output_dir)
         else:
             # Create a scrollable text area for long error messages
             error_dialog = QMessageBox(self)
