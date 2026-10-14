@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -142,6 +143,13 @@ class ConfigTests(unittest.TestCase):
     def test_oversized_profile_rejected(self) -> None:
         profile = self.root / "big.json"
         profile.write_bytes(b" " * (128 * 1024 + 1))
+        with self.assertRaises(ConfigError):
+            load_profile(profile)
+
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "Named pipes are a POSIX feature")
+    def test_profile_named_pipe_rejected_without_blocking(self) -> None:
+        profile = self.root / "pipe.json"
+        os.mkfifo(profile)
         with self.assertRaises(ConfigError):
             load_profile(profile)
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import stat
 import tempfile
 from dataclasses import asdict, dataclass, fields, replace
 from pathlib import Path
@@ -191,7 +192,12 @@ def load_profile(path: Path) -> BuildConfig:
     """Load strict JSON with paths resolved relative to the profile file."""
     try:
         path = path.expanduser().resolve()
-        with path.open("rb") as handle:
+        descriptor = os.open(
+            path, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_NOFOLLOW", 0)
+        )
+        with os.fdopen(descriptor, "rb") as handle:
+            if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
+                raise ConfigError("Profile must be a regular JSON file, not a pipe or device.")
             content = handle.read(MAX_PROFILE_BYTES + 1)
         if len(content) > MAX_PROFILE_BYTES:
             raise ConfigError("Profile exceeds the 128 KiB limit.")
