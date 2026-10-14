@@ -11,3 +11,5 @@ dist/
 .pyforge/
 .coverage
 htmlcov/
+.audit-cache/
+*.audit.json

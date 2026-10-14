@@ -1,6 +1,7 @@
 """Compatibility launcher for source checkouts; prefer python -m pyforge."""
-from pathlib import Path
+
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
 from pyforge.gui import main  # noqa: E402

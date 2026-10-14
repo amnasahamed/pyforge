@@ -1,0 +1,17 @@
+include README.md CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md CHANGELOG.md
+include pyproject.toml pyforge.py requirements-dev.txt
+recursive-include src *.py py.typed
+recursive-include tests *.py
+recursive-include examples *.py *.md
+recursive-include docs *.md *.png
+recursive-include tools *.py
+recursive-include .github *.yml *.yaml *.md *.txt *.py
+exclude forge.icns forge.ico forge.png ignore
+prune .venv
+prune .audit-cache
+prune .pytest_cache
+prune .mypy_cache
+prune .ruff_cache
+prune build
+prune dist
+global-exclude __pycache__ *.py[cod] *.spec .coverage
