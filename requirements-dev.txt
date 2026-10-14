@@ -1,0 +1,7 @@
+# Reviewed direct tool pins, not a complete cross-platform lock file.
+# Runtime extras are deliberately separate; see .github/requirements-build.txt.
+pytest==9.1.1
+ruff==0.17.0
+mypy==1.20.2
+build==1.6.1
+pip-audit==2.10.1

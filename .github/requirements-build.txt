@@ -1,0 +1,5 @@
+# Native packaging CI only. Qt's platform-specific transitive wheels resolve per OS.
+PyQt5==5.15.11
+PyQt5-sip==12.20.0
+pyinstaller==6.22.3
+pyinstaller-hooks-contrib==2026.8

@@ -1,0 +1,39 @@
+name: Bug report
+description: Report a reproducible non-sensitive defect.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: "Do not post vulnerabilities, secrets, private paths or proprietary code. Follow SECURITY.md for private security reporting."
+  - type: input
+    id: version
+    attributes:
+      label: PyForge version / exact commit
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS/architecture, Python, PyInstaller and Qt versions; source/venv or UI-only frozen preview.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reviewed reproduction
+      description: Steps, exact settings, expected and actual behavior. Do not attach unreviewed executable code.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted diagnostics and verification
+      description: Relevant report/log excerpts; distinguish native, offscreen, skipped and unrun checks.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: I removed secrets, sensitive paths and private/proprietary source.
+          required: true

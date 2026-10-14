@@ -1,0 +1,217 @@
+name: CI
+
+on:
+  push:
+    branches: [main, feature/production-core]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      package_gui_preview:
+        description: Build an unsigned UI-only frozen preview (requires cleared distribution rights)
+        type: boolean
+        default: false
+      preview_distribution_attested:
+        description: Project license, assets and bundled dependency distribution obligations are resolved
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact candidate commit to test
+        type: string
+        required: false
+        default: ''
+      package_gui_preview:
+        type: boolean
+        required: false
+        default: false
+      preview_distribution_attested:
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}-${{ inputs.ref }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' && github.event_name != 'workflow_call' }}
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  PYTHONUTF8: '1'
+  QT_QPA_PLATFORM: offscreen
+
+jobs:
+  core:
+    name: Core Python ${{ matrix.python }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.10', '3.12', '3.14']
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-dev.txt
+      - name: Install reviewed core test tools
+        run: |
+          python -m pip install pip==26.2.1
+          python -m pip install -r requirements-dev.txt -e '.[dev]'
+      - name: Verify Qt-free CLI and core tests
+        run: |
+          python -m pyforge --help
+          python -m pytest -m 'not integration'
+
+  quality:
+    name: Linux quality and source packages
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-dev.txt
+            .github/requirements-build.txt
+      - name: Install reviewed quality and packaging tools
+        run: |
+          python -m pip install pip==26.2.1
+          python -m pip install -r requirements-dev.txt -r .github/requirements-build.txt -e '.[gui,build,dev]'
+          mkdir -p artifacts
+          python -m pip freeze > artifacts/environment.txt
+      - name: Lint and strict core types
+        run: |
+          python -m ruff check .
+          python -m mypy
+          python .github/scripts/test_release_helpers.py
+      - name: Unit and offscreen GUI tests
+        run: python -m pytest -m 'not integration' --junitxml=artifacts/unit.xml
+      - name: Real Linux CLI packaging and launch
+        env:
+          PYFORGE_RUN_INTEGRATION: '1'
+          PYFORGE_INTEGRATION_OUTPUT: artifacts/integration
+        run: python -m pytest -m integration tests/test_integration.py --junitxml=artifacts/integration.xml
+      - name: Build and inspect source/wheel archives
+        run: |
+          python -m build
+          python .github/scripts/verify_distribution.py
+      - name: Wheel install in isolated Qt-free environment
+        run: |
+          python -m venv artifacts/wheel-check
+          artifacts/wheel-check/bin/python -m pip install --no-deps dist/*.whl
+          (cd /tmp && "$GITHUB_WORKSPACE/artifacts/wheel-check/bin/python" -m pyforge --help)
+          artifacts/wheel-check/bin/python -c "import importlib.util; assert importlib.util.find_spec('PyQt5') is None"
+      - name: Strict known-advisory audit
+        run: |
+          python .github/scripts/audit_environment.py artifacts/audit-requirements.txt
+          python -m pip_audit --strict --disable-pip --no-deps -r artifacts/audit-requirements.txt --format json --output artifacts/pip-audit.json
+      - name: Upload source distributions (not a public release)
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: source-distributions
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
+      - name: Preserve verification reports, not native example binaries
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: linux-verification-reports
+          path: |
+            artifacts/*.xml
+            artifacts/environment.txt
+            artifacts/pip-audit.json
+            artifacts/audit-requirements.txt
+            artifacts/integration/**/build-report.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  native:
+    name: Native ${{ matrix.os }} packaging
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, macos-15]
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-dev.txt
+            .github/requirements-build.txt
+      - name: Install reviewed native build tools
+        run: |
+          python -m pip install pip==26.2.1
+          python -m pip install -r requirements-dev.txt -r .github/requirements-build.txt -e '.[gui,build,dev]'
+          mkdir -p artifacts
+          python -m pip freeze > artifacts/environment.txt
+      - name: Native unit and offscreen GUI tests
+        run: python -m pytest -m 'not integration' --junitxml=artifacts/unit.xml
+      - name: Package and launch reviewed CLI modes and Qt application
+        env:
+          PYFORGE_RUN_INTEGRATION: '1'
+          PYFORGE_RUN_GUI_INTEGRATION: '1'
+          PYFORGE_INTEGRATION_OUTPUT: artifacts/integration
+        run: python -m pytest -m integration tests/test_integration.py --junitxml=artifacts/integration.xml
+      - name: Verify optional preview distribution gate
+        if: inputs.package_gui_preview
+        env:
+          PROJECT_LICENSE_ATTESTED: ${{ inputs.preview_distribution_attested }}
+          DEPENDENCY_DISTRIBUTION_ATTESTED: ${{ inputs.preview_distribution_attested }}
+        run: |
+          export RELEASE_COMMIT="$(git rev-parse HEAD)"
+          export RELEASE_VERSION="$(python -c 'from pyforge import __version__; print(__version__)')"
+          python .github/scripts/release_gate.py
+      - name: Build unsigned UI-only developer preview
+        if: inputs.package_gui_preview
+        run: python .github/scripts/package_preview.py
+      - name: Upload gated UI-only preview archives separately
+        if: inputs.package_gui_preview
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: PyForge-UI-ONLY-UNSIGNED-${{ matrix.os }}
+          path: |
+            artifacts/gui-preview/*.zip
+            artifacts/gui-preview/*.tar.gz
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+      - name: Preserve native reports, not bundled Qt example binaries
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: native-verification-reports-${{ matrix.os }}
+          path: |
+            artifacts/*.xml
+            artifacts/environment.txt
+            artifacts/integration/**/build-report.json
+          if-no-files-found: warn
+          retention-days: 14

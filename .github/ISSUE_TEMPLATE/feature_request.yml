@@ -1,0 +1,23 @@
+name: Feature request
+description: Suggest a focused packaging, safety or usability improvement.
+title: "[Feature]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / workflow
+      description: Who needs this and what currently blocks them?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed outcome
+      description: Include native platform needs and trust/licensing implications.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and scope
+      description: Describe reviewed workarounds and what should remain out of scope.
