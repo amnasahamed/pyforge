@@ -471,7 +471,9 @@ def test_result_never_auto_launches_artifact_and_folder_button_only_opens_folder
     assert not opened
     assert win.copy_artifact_button.isEnabled()
     win.open_folder_button.click()
-    assert opened == [str(artifact.parent)]
+    # QUrl uses forward slashes on Windows; compare native path semantics while
+    # still requiring exactly one folder open and never an artifact launch.
+    assert [Path(path) for path in opened] == [artifact.parent]
 
 
 def test_resize_theme_keyboard_navigation_and_shortcut_guard(window, app):
