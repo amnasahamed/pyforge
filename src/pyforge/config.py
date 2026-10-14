@@ -17,7 +17,7 @@ PROFILE_SCHEMA = 1
 MAX_PROFILE_BYTES = 128 * 1024
 MAX_SCRIPT_BYTES = 2 * 1024 * 1024
 _NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9 _.-]{0,79}\Z")
-_VERSION = re.compile(r"\d{1,5}(?:\.\d{1,5}){0,3}\Z")
+_VERSION = re.compile(r"[0-9]{1,5}(?:\.[0-9]{1,5}){0,3}\Z")
 _MODULE = re.compile(r"[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*\Z", re.ASCII)
 _RESERVED = {
     "CON",

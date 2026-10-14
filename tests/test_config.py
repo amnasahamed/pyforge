@@ -49,7 +49,7 @@ class ConfigTests(unittest.TestCase):
         self.assertTrue(self.config(hidden_imports=("json",) * 501).validate())
 
     def test_macos_bundle_version_is_native_compatible(self) -> None:
-        for version in ("1", "1.2", "1.2.3.4", "65535.1.2", "1.100.2", "0.1.2"):
+        for version in ("1", "1.2", "1.2.3.4", "65535.1.2", "1.100.2", "0.1.2", "١.٢.٣"):
             with self.subTest(version=version):
                 self.assertTrue(
                     self.config(target="macos", console=False, version=version).validate(
