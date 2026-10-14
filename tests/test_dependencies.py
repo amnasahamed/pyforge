@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 import tempfile
 import unittest
@@ -133,6 +134,14 @@ class DependencyTests(unittest.TestCase):
             self.skipTest("Host does not permit symlinks")
         report = inspect_dependencies(self.script)
         self.assertNotIn("nonexistent_outside_dependency", {d.name for d in report.imports})
+
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "Named pipes are a POSIX feature")
+    def test_sibling_named_pipe_cannot_block_inspection(self) -> None:
+        self.write_script("import json\n")
+        os.mkfifo(self.root / "sibling.py")
+        report = inspect_dependencies(self.script)
+        self.assertEqual(report.files_scanned, 1)
+        self.assertTrue(any("non-regular" in issue for issue in report.issues))
 
     def test_scan_limits_are_reported(self) -> None:
         self.write_script("import json\n")

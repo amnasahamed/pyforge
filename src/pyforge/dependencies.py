@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import ast
 import importlib.metadata
+import io
 import os
+import stat
 import sys
 import tokenize
 from dataclasses import asdict, dataclass
@@ -67,7 +69,7 @@ def inspect_dependencies(script: Path) -> DependencyReport:
         for item in root.iterdir():
             if item.is_symlink():
                 continue
-            if item.suffix == ".py":
+            if item.suffix == ".py" and item.is_file():
                 local.add(item.stem)
             elif item.is_dir() and item.name not in SKIP_DIRS and not item.name.startswith("."):
                 local.add(item.name)
@@ -94,6 +96,11 @@ def inspect_dependencies(script: Path) -> DependencyReport:
             for name in sorted(names):
                 candidate = Path(directory) / name
                 if candidate.suffix == ".py" and not candidate.is_symlink():
+                    if not stat.S_ISREG(candidate.lstat().st_mode):
+                        issues.append(
+                            f"Skipped non-regular Python path: {candidate.relative_to(root)}"
+                        )
+                        continue
                     files.append(candidate)
                     if len(files) >= MAX_FILES:
                         break
@@ -111,7 +118,18 @@ def inspect_dependencies(script: Path) -> DependencyReport:
     total_bytes = 0
     for path in files:
         try:
-            size = path.stat().st_size
+            flags = os.O_RDONLY | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_NOFOLLOW", 0)
+            descriptor = os.open(path, flags)
+            with os.fdopen(descriptor, "rb") as handle:
+                info = os.fstat(handle.fileno())
+                if not stat.S_ISREG(info.st_mode):
+                    issues.append(f"Skipped non-regular Python path: {path.relative_to(root)}")
+                    continue
+                if info.st_size > MAX_SCRIPT_BYTES:
+                    issues.append(f"Skipped oversized Python file: {path.name}")
+                    continue
+                content = handle.read(MAX_SCRIPT_BYTES + 1)
+            size = len(content)
             if size > MAX_SCRIPT_BYTES:
                 issues.append(f"Skipped oversized Python file: {path.name}")
                 continue
@@ -121,11 +139,8 @@ def inspect_dependencies(script: Path) -> DependencyReport:
                     "Inspection stopped at the 32 MiB total source limit; narrow the project directory."
                 )
                 break
-            with tokenize.open(path) as handle:
-                source = handle.read(MAX_SCRIPT_BYTES + 1)
-            if len(source) > MAX_SCRIPT_BYTES:
-                issues.append(f"Skipped oversized Python file: {path.name}")
-                continue
+            encoding, _ = tokenize.detect_encoding(io.BytesIO(content).readline)
+            source = content.decode(encoding)
             tree = ast.parse(source, filename=str(path))
             count += 1
         except (OSError, UnicodeError, SyntaxError, LookupError, RecursionError, ValueError) as exc:
