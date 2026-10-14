@@ -45,7 +45,9 @@ def main() -> None:
         "UNSIGNED UI-ONLY DEVELOPER PREVIEW. Not a public release or standalone build tool.\n"
         "Doctor blocks frozen packaging because the executable is not a Python interpreter.\n"
         "Install PyForge from source/in a virtual environment to package projects.\n"
-        "Project/PyQt/Qt/dependency licensing must be resolved before redistribution.\n",
+        "PyForge project code is MIT; this does not license the combined GUI binary.\n"
+        "Bundled PyQt/Qt/dependency notices/source obligations remain separately gated.\n"
+        "The helper includes project notices, not a complete dependency compliance package.\n",
         encoding="utf-8",
     )
     manifest = output / "preview-environment.json"
@@ -64,6 +66,7 @@ def main() -> None:
         encoding="utf-8",
     )
     archive_name = f"PyForge-{__version__}-{config.target}-UI-ONLY-UNSIGNED"
+    legal_files = ("LICENSE", "NOTICE", "docs/LICENSING.md")
     if config.target == "windows":
         archive_path = output / f"{archive_name}.zip"
         with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as archive:
@@ -72,12 +75,16 @@ def main() -> None:
                     archive.write(item, Path(artifact.name) / item.relative_to(artifact))
             archive.write(notice, notice.name)
             archive.write(manifest, manifest.name)
+            for name in legal_files:
+                archive.write(root / name, Path("project-licenses") / name)
     else:
         archive_path = output / f"{archive_name}.tar.gz"
         with tarfile.open(archive_path, "w:gz", dereference=False) as archive:
             archive.add(artifact, arcname=artifact.name)
             archive.add(notice, arcname=notice.name)
             archive.add(manifest, arcname=manifest.name)
+            for name in legal_files:
+                archive.add(root / name, arcname=f"project-licenses/{name}")
     print(f"UI-only unsigned preview: {archive_path}")
 
 

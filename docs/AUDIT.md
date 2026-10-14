@@ -30,7 +30,7 @@ Keep PyQt5 to avoid a gratuitous toolkit migration. UI, configuration/profile pe
 
 PyInstaller must run on the target operating system. Windows creates .exe files; macOS windowed builds create .app bundles; Linux produces Linux executables and is not a Windows/macOS cross-compiler. macOS onefile .app is inefficient and unsuitable for sandboxed Mac App Store delivery. Signing/notarization and universal architectures are outside the initial core.
 
-Native CI must prove Windows/macOS smoke scenarios. Local Linux tests do not establish native compatibility. GitHub artifacts are unsigned development builds. No public binary release is ready until project license text, icon rights and GPL/commercial dependency distribution obligations have been resolved and native checks pass.
+Native CI must prove Windows/macOS smoke scenarios. Local Linux tests do not establish native compatibility. GitHub artifacts are unsigned development builds. The missing baseline project grant is now resolved by an authorized MIT LICENSE, with scope in NOTICE. Original icons remain excluded. Public GUI binary release still requires GPL/commercial dependency distribution review and matching native checks.
 
 ## References
 
@@ -79,8 +79,8 @@ ran too late to release Windows temporary file handles.
 Python 3.12.14, PyInstaller 6.22.3, PyQt5 5.15.11, pytest 9.1.1,
 Ruff 0.17.0 and mypy 1.20.2 were used in an isolated virtual environment.
 
-- Full pytest with both integration flags: **144 passed, 1 skipped, 59 subtests**,
-  25.76 seconds. The skip is the Windows-only Job Object test, not a Windows pass.
+- Full pytest with both integration flags: **144 passed, 1 skipped**,
+  27.59 seconds after the MIT update. The skip is the Windows-only Job Object test, not a Windows pass.
 - All three real native scenarios passed: CLI `onedir` and `onefile` launch
   markers, and windowed Qt `onedir` offscreen launch marker. Paths with spaces and
   unchanged user-maintained requirements were checked.
@@ -89,11 +89,14 @@ Ruff 0.17.0 and mypy 1.20.2 were used in an isolated virtual environment.
 - Ruff lint/format and strict core mypy passed. Qt implementation is regression
   tested, but is not claimed to have strict Qt static typing coverage.
 - Source/wheel build, archive layout/asset exclusions and clean Qt-free wheel
-  installation/CLI launch passed. The final archives are rebuilt by CI.
+  installation/CLI launch passed. MIT update verification requires PEP 639
+  metadata and byte-identical LICENSE/NOTICE/legal scope files in both archives. The final archives are rebuilt by CI.
 - Strict known-advisory audit of 46 exact third-party installed pins passed.
   Only the tested editable PyForge project is omitted; unexpected editable or
   URL/local-path pins fail the export guard. No vulnerability ignores are used.
-- Release/audit helper guards and workflow/document link checks passed. A parsed
+- All 22 release/audit/archive/preview helper regression tests passed, including
+  missing/changed notices, metadata mismatch and fail-closed attestations.
+  Workflow/document link checks passed. A parsed
   workflow is not evidence of a successful GitHub Actions execution.
 
 This checkpoint precedes native GitHub CI. Matching remote-commit/run evidence is
@@ -102,8 +105,10 @@ desktop, clean-machine runtime, signing or notarization pass is claimed here.
 
 #### Remaining gates and deliberate scope limits
 
-The project grant and third-party distribution obligations remain unresolved;
-no LICENSE was invented, no original asset rights asserted, and no public release
+The maintainer authorized MIT for their own project code on 2026-10-14; LICENSE,
+NOTICE and package metadata now record that grant and its exclusions. Original
+icon rights were not independently established and those assets remain excluded.
+Third-party distribution obligations remain a separate gate, and no public release
 was published. A frozen PyForge is UI-only and cannot package projects without a
 future validated external-interpreter selector. Native interactive QA, clean-host
 launch checks, signing/notarization, cross-architecture/universal binaries, rich

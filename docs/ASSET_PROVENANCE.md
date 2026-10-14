@@ -14,4 +14,5 @@ Maintainer statement, 2026-10-14: the original project code and icons were creat
 by them using AI assistance. This is a creation assertion, not independent rights
 clearance; the generating service, applicable terms and any source/reference assets
 are not established. Keep the original icons excluded until a usable provenance
-record exists. No icon or upstream dependency has been relicensed by this upgrade.
+record exists. The authorized MIT grant covers only project code/documentation, not these original
+icons or upstream dependencies.

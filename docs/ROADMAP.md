@@ -4,7 +4,7 @@ This is a prioritized plan, not a promise of supported features or release dates
 
 ## Required before public distribution
 
-1. Formalize project licensing and contribution terms with the rights holder.
+1. Preserve the authorized MIT project grant and scope; review new contributions and dependency distribution terms.
 2. Keep unknown-origin assets excluded or establish their rights.
 3. Complete exact-commit native CI and interactive desktop testing; review dependency notices/security.
 4. Document unsigned developer output accurately; establish any future signing/notarization path.

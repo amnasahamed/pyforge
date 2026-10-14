@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=77", "wheel"]
+requires = ["setuptools>=77.0.3", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,7 +9,8 @@ description = "Review, diagnose and package trusted Python projects with PyInsta
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{name = "Amnas Ahamed"}]
-# Licensing was not formalized in the baseline; see docs/LICENSING.md.
+license = "MIT"
+license-files = ["LICENSE", "NOTICE", "docs/LICENSING.md"]
 dependencies = []
 
 [project.optional-dependencies]

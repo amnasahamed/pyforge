@@ -11,6 +11,7 @@
 - Optional dark/light Qt interface and source-compatible GUI wrapper.
 - Reviewed stdlib/Qt examples, automated tests and native CI/release scaffolding.
 - Contributor/security/architecture/usage/maintainer/release documentation and genuine Linux offscreen captures.
+- Maintainer-authorized MIT project grant, explicit scope notice and PEP 639 license metadata/archive verification.
 
 ### Changed
 
@@ -20,7 +21,7 @@
 
 ### Release limits
 
-- Project license grant and original icon rights remain unresolved; no license is invented.
+- Original icons remain excluded from the MIT grant and distributions pending a usable provenance record; third-party licenses are unchanged.
 - PyQt/Qt distribution review and native exact-commit CI/interactive evidence are required before public distribution.
 - Frozen PyForge is UI-only until external-interpreter selection exists; source/venv installation is the packaging path.
 - CI artifacts are unsigned development output. No PyPI upload/signing/notarization/public release is implied.

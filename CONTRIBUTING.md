@@ -4,7 +4,7 @@ Thanks for helping make native Python packaging clearer and safer.
 
 ## Before contributing
 
-Read [development](docs/DEVELOPMENT.md), [architecture](docs/ARCHITECTURE.md), [conduct](CODE_OF_CONDUCT.md), [security](SECURITY.md) and [licensing](docs/LICENSING.md). The original grant text is unresolved; no new license grant or contributor agreement is implied here. Identify third-party code/assets and their terms; do not copy code of unknown provenance.
+Read [development](docs/DEVELOPMENT.md), [architecture](docs/ARCHITECTURE.md), [conduct](CODE_OF_CONDUCT.md), [security](SECURITY.md) and [licensing](docs/LICENSING.md). PyForge's own code/documentation use [MIT](LICENSE) with the exclusions in [NOTICE](NOTICE). Submit contributions you have the right to provide under that project license; identify any third-party code/assets and their separate terms. Do not copy material of unknown provenance. This policy does not create a separate contributor agreement or transfer copyright.
 
 Use a topic branch and keep changes focused. Preserve existing work/history. Explain the problem, approach, security/trust effects and actual verification in the PR. Use a draft PR while native checks or review are pending.
 

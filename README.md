@@ -4,7 +4,7 @@
 
 PyForge is a desktop application and CLI for inspecting trusted Python projects and packaging them with PyInstaller. It separates read-only inspection from code-executing builds, isolates output per run, and provides diagnostics, live logs and cancellation.
 
-**Development candidate:** package metadata is `pyforge-tool` 0.2.0, Python 3.10+. Install from this repository; a PyPI publication and public binary release are **not established by this README**. The project license and original asset provenance still require maintainer resolution before a public release. See [licensing](docs/LICENSING.md) and the [release checklist](docs/RELEASE_CHECKLIST.md).
+**Development candidate:** package metadata is `pyforge-tool` 0.2.0, Python 3.10+. Install from this repository; a PyPI publication and public binary release are **not established by this README**. PyForge's own project code is MIT-licensed; original icons remain excluded and bundled GUI/dependency distribution obligations still require review. See [licensing](docs/LICENSING.md) and the [release checklist](docs/RELEASE_CHECKLIST.md).
 
 ## Features
 
@@ -128,4 +128,4 @@ Real packaging tests are locally opt-in because they execute reviewed code and t
 
 Original project by [Amnas Ahamed](https://github.com/amnasahamed). Existing work and Git history are retained.
 
-The baseline README claimed MIT, but no license grant text was present. This change does not invent a grant or relicense the project. PyQt is GPLv3/commercial, **not LGPL**; distribution needs a compatible licensing plan. Original `forge.*` assets remain in the checkout but are not application/build defaults. Read [LICENSING.md](docs/LICENSING.md) before redistribution.
+PyForge's own project code and associated documentation are licensed under [MIT](LICENSE), selected with the maintainer's authorization. [NOTICE](NOTICE) defines the scope: third-party dependencies retain their licenses, and original `forge.*` assets are excluded from the grant and distributions. PyQt is GPLv3/commercial, **not LGPL**; MIT project metadata does not clear a combined GUI binary. Read [LICENSING.md](docs/LICENSING.md) before redistribution.

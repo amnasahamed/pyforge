@@ -1,0 +1,23 @@
+PyForge project license scope
+
+The MIT License in LICENSE applies to PyForge's own project source code and
+associated documentation, examples, tests and development tooling, to the extent
+the project rights holders can grant those rights. Existing author/history
+attribution is preserved. AI assistance is not independent proof of copyright
+ownership or freedom from third-party claims.
+
+The original forge.png, forge.ico and forge.icns assets are explicitly excluded
+from this project MIT grant. They remain in the Git checkout, but are not used as
+default icons or included in source/wheel or GUI-preview distributions. Their
+creation/provenance record still needs completion before redistribution.
+
+Third-party software, libraries and assets retain their own licenses and notices.
+This MIT grant does not relicense PyQt5, Qt, PyInstaller or their dependencies.
+In particular, PyQt5 is GPLv3/commercial, not LGPL. A GUI binary containing GPL
+PyQt5 must satisfy the applicable GPL and Qt distribution requirements; project
+MIT metadata is not a license for that combined binary.
+
+Source/wheel distributions do not bundle those optional third-party libraries.
+Frozen GUI redistribution remains separately gated, and PyForge's UI-only
+preview is not a standalone packaging tool. See docs/LICENSING.md for the full
+scope, upstream references and release constraints.
