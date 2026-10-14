@@ -91,7 +91,20 @@ class ConfigTests(unittest.TestCase):
                 self.assertTrue(self.config(name=name).validate(host="windows"))
 
     def test_windows_reserved_names_rejected_case_insensitively(self) -> None:
-        for name in ("CON", "con", "NUL", "AUX", "PRN", "COM1", "LPT9", "con.txt"):
+        for name in (
+            "CON",
+            "con",
+            "NUL",
+            "AUX",
+            "PRN",
+            "COM1",
+            "LPT9",
+            "con.txt",
+            "CON .txt",
+            "COM1 .foo",
+            "NUL  .exe",
+            "PRN .app",
+        ):
             with self.subTest(name=name):
                 self.assertTrue(self.config(name=name).validate(host="windows"))
 

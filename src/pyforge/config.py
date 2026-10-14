@@ -83,7 +83,7 @@ class BuildConfig:
             errors.append(
                 "App name must be 1–80 ASCII letters/numbers/spaces/dots/dashes/underscores, start with a letter or number, and not end in a dot or space."
             )
-        elif self.name.split(".")[0].upper() in _RESERVED:
+        elif self.name.split(".")[0].rstrip(" ").upper() in _RESERVED:
             errors.append("App name is reserved by Windows; choose another name.")
         if self.mode not in ("onefile", "onedir"):
             errors.append("Bundle mode must be onefile or onedir.")
