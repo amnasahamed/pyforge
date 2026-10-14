@@ -97,6 +97,14 @@ class BuildConfig:
             errors.append(
                 "Version must contain 1–4 numeric parts from 0 to 65535 (for example 1.2.0)."
             )
+        elif target == "macos" and not self.console:
+            parts = self.version.split(".")
+            if len(parts) != 3 or not (
+                1 <= int(parts[0]) <= 9999 and int(parts[1]) <= 99 and int(parts[2]) <= 99
+            ):
+                errors.append(
+                    "A macOS .app version must have three numeric parts: major 1–9999, minor/patch 0–99 (for example 1.2.0)."
+                )
         if len(self.description) > 500 or any(
             ord(c) < 32 and c not in "\n\t" for c in self.description
         ):

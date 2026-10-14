@@ -58,6 +58,15 @@ def run_doctor(config: BuildConfig) -> DoctorReport:
             )
         )
     dependencies = inspect_dependencies(config.script)
+    if not dependencies.entry_inspected:
+        findings.append(
+            Diagnostic(
+                "error",
+                "entry-not-inspected",
+                "The entry script could not be statically inspected.",
+                "Choose a readable, regular Python source file within the 2 MiB limit and fix its reported syntax/encoding errors.",
+            )
+        )
     for issue in dependencies.issues:
         severity = "error" if issue.startswith(("Cannot parse", "Entry script")) else "warning"
         findings.append(

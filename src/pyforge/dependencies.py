@@ -43,6 +43,7 @@ class DependencyReport:
     imports: list[Dependency]
     issues: list[str]
     files_scanned: int
+    entry_inspected: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -115,6 +116,7 @@ def inspect_dependencies(script: Path) -> DependencyReport:
         issues.append(f"Cannot enumerate project files: {exc}")
         files = [script]
     count = 0
+    entry_inspected = False
     total_bytes = 0
     for path in files:
         try:
@@ -143,6 +145,8 @@ def inspect_dependencies(script: Path) -> DependencyReport:
             source = content.decode(encoding)
             tree = ast.parse(source, filename=str(path))
             count += 1
+            if path == script:
+                entry_inspected = True
         except (OSError, UnicodeError, SyntaxError, LookupError, RecursionError, ValueError) as exc:
             issues.append(f"Cannot parse {path.relative_to(root)}: {exc}")
             continue
@@ -182,4 +186,4 @@ def inspect_dependencies(script: Path) -> DependencyReport:
             else "unresolved"
         )
         dependencies.append(Dependency(name, kind, providers))
-    return DependencyReport(dependencies, list(dict.fromkeys(issues)), count)
+    return DependencyReport(dependencies, list(dict.fromkeys(issues)), count, entry_inspected)

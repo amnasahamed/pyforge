@@ -48,6 +48,18 @@ class ConfigTests(unittest.TestCase):
     def test_oversized_hidden_import_list_rejected(self) -> None:
         self.assertTrue(self.config(hidden_imports=("json",) * 501).validate())
 
+    def test_macos_bundle_version_is_native_compatible(self) -> None:
+        for version in ("1", "1.2", "1.2.3.4", "65535.1.2", "1.100.2", "0.1.2"):
+            with self.subTest(version=version):
+                self.assertTrue(
+                    self.config(target="macos", console=False, version=version).validate(
+                        host="macos"
+                    )
+                )
+        self.assertFalse(
+            self.config(target="macos", console=False, version="2.3.4").validate(host="macos")
+        )
+
     def test_missing_script_has_actionable_error(self) -> None:
         errors = self.config(script=self.root / "missing.py").validate(host="linux")
         self.assertTrue(errors)

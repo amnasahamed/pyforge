@@ -116,6 +116,13 @@ class DependencyTests(unittest.TestCase):
         self.script.write_bytes(b"# coding: nonexistent_pyforge_encoding\nprint('hello')\n")
         self.assertTrue(inspect_dependencies(self.script).issues)
 
+    def test_oversized_entry_is_not_reported_as_inspected(self) -> None:
+        self.script.write_bytes(b"#" * (2 * 1024 * 1024 + 1))
+        (self.root / "small.py").write_text("import json\n", encoding="utf-8")
+        report = inspect_dependencies(self.script)
+        self.assertFalse(report.entry_inspected)
+        self.assertEqual(report.files_scanned, 1)
+
     def test_stdlib_shadow_is_identified(self) -> None:
         self.write_script("import json\n")
         (self.root / "json.py").write_text("# shadow\n", encoding="utf-8")
