@@ -48,6 +48,15 @@ def run_doctor(config: BuildConfig) -> DoctorReport:
         Diagnostic("error", "config", error, "Correct this setting and run Doctor again.")
         for error in config.validate()
     ]
+    if getattr(sys, "frozen", False):
+        findings.append(
+            Diagnostic(
+                "error",
+                "frozen-runtime",
+                "A frozen PyForge preview does not contain a Python build interpreter.",
+                "Install and run PyForge in your project's reviewed Python virtual environment. External interpreter selection is not supported yet.",
+            )
+        )
     dependencies = inspect_dependencies(config.script)
     for issue in dependencies.issues:
         severity = "error" if issue.startswith(("Cannot parse", "Entry script")) else "warning"
@@ -82,14 +91,15 @@ def run_doctor(config: BuildConfig) -> DoctorReport:
         )
     try:
         version = importlib.metadata.version("pyinstaller")
-        major = int(version.split(".")[0])
-        if major < 6:
+        parts = version.split(".")
+        major, minor = int(parts[0]), int(parts[1])
+        if major != 6 or minor < 20:
             findings.append(
                 Diagnostic(
                     "error",
                     "pyinstaller-version",
-                    f"PyInstaller {version} is too old.",
-                    "Install the documented PyInstaller 6.x build extra in your virtual environment.",
+                    f"PyInstaller {version} is outside the supported range (>=6.20,<7).",
+                    "Install the documented PyInstaller build extra in your virtual environment.",
                 )
             )
         else:
@@ -110,7 +120,7 @@ def run_doctor(config: BuildConfig) -> DoctorReport:
                 f'Run "{sys.executable}" -m pip install "pyinstaller>=6.20,<7" in a virtual environment after reviewing the package.',
             )
         )
-    except (ValueError, OSError) as exc:
+    except (ValueError, IndexError, OSError) as exc:
         findings.append(
             Diagnostic(
                 "error",

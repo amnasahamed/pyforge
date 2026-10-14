@@ -107,6 +107,20 @@ class DoctorTests(unittest.TestCase):
             )
         self.assertTrue(any(item.code == "linux-windowed" for item in report.findings))
 
+    def test_frozen_preview_cannot_recursively_build(self) -> None:
+        with patch.object(__import__("sys"), "frozen", True, create=True):
+            report = run_doctor(self.config)
+        self.assertFalse(report.ok)
+        self.assertTrue(any(item.code == "frozen-runtime" for item in report.findings))
+
+    def test_unsupported_packager_versions_are_errors(self) -> None:
+        for version in ("5.13.2", "6.0", "7.0", "broken"):
+            with (
+                self.subTest(version=version),
+                patch("importlib.metadata.version", return_value=version),
+            ):
+                self.assertFalse(run_doctor(self.config).ok)
+
 
 if __name__ == "__main__":
     unittest.main()
