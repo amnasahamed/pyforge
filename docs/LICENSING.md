@@ -4,6 +4,21 @@
 
 The original README claimed MIT, but the audited baseline did not contain a LICENSE or corresponding grant text. A badge or sentence alone is not a complete record of ownership, permission and scope. This upgrade preserves authorship/history and does **not** add a grant, relicense existing code or represent that redistribution has been cleared.
 
+On 2026-10-14, the maintainer stated that they created the original code and icons
+themselves using AI assistance. This records their authorship assertion, not an
+independent verification of rights, training-data provenance or third-party terms.
+No particular AI service or creation terms have been established. The original
+icons remain excluded from distributions while their creation/provenance record
+is completed.
+
+For the maintainer's own project code, MIT is a reasonable recommendation matching
+the original stated intention. It is an [OSI-approved license](https://opensource.org/license/mit)
+and the [GNU license list identifies its Expat/MIT form as GPL-compatible](https://www.gnu.org/licenses/license-list.html#Expat).
+Project-code licensing must not be mistaken for relicensing PyQt/Qt or clearing a
+combined binary: those dependencies retain their own terms and distribution
+requirements. A real grant still requires the rights holder's explicit approval;
+this recommendation is not a grant or a legal certainty about AI-assisted material.
+
 Before a public source/binary release, the rights holder must establish the intended license, supply the correct grant text and confirm that existing/contributed code is covered. Contributors must identify any third-party material and its terms. Public repository availability does not by itself resolve these obligations. This document records engineering release constraints, not legal advice.
 
 ## PyQt and Qt are distinct
