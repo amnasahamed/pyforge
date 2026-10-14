@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyforge-tool"
+version = "0.2.0"
+description = "Review, diagnose and package trusted Python projects with PyInstaller"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{name = "Amnas Ahamed"}]
+# Licensing was not formalized in the baseline; see docs/LICENSING.md.
+dependencies = []
+
+[project.optional-dependencies]
+gui = ["PyQt5>=5.15.11,<6"]
+build = ["pyinstaller>=6.20,<7"]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1", "mypy>=1.15,<2", "build>=1.2,<2", "pip-audit>=2.9,<3"]
+
+[project.scripts]
+pyforge = "pyforge.cli:main"
+
+[project.gui-scripts]
+pyforge-gui = "pyforge.gui:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pyforge = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"
+markers = ["integration: invokes PyInstaller against reviewed example code"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+files = ["src/pyforge"]
+strict = true
+exclude = ["gui.py", "gui_entry.py"]
+
+[[tool.mypy.overrides]]
+module = ["PyQt5.*"]
+ignore_missing_imports = true
